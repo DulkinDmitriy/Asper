@@ -1,26 +1,30 @@
 # Api routes
 
 ## api/post [GET]
-    ### [GET]
+    [GET]
         Return all posts.
-    ### [POST]
+        
+    [POST]
         Create new post.
 
 ## api/post/<id> [GET, PUT, DELETE]
-    ### [GET]
+    [GET]
         Return post by id.
-    ### [PUT]
+    
+    [PUT]
         Replace current post or create a new item.
-    ### [DELETE]
+    
+    [DELETE]
         Delete current post
-    ### Errors:
-        #### Access denied error: 
+    
+    Errors:
+        Access denied error: 
             `{
                 "error": {
                     "message" = "Access denied"
                 }
             }`
-        #### Item not found error [GET, PUT, DELETE]:
+        Item not found error [GET, PUT, DELETE]:
             `{
                 "error": {
                     "message" = "Item not found",
