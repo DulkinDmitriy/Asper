@@ -16,9 +16,10 @@ def create_app(test_config = None):
     except OSError:
         pass
     
-    @app.route('/api/hello/')
-    def hello():
-        return "Hello World"
+    @app.route('/api//')
+    def api():
+        return "api"
+
+
 
     return app
-    
