@@ -1,12 +1,11 @@
 # Api routes
 
-## api/posts [GET]
-    [GET]
+## api/post/getAll [GET]
         Return all posts.
 
         with_likes? - Include likes in response;
         with_comments? - Include comments in response;
-        counts - counts of posts;
+        count - count of posts;
 
         `{
             "posts": [
@@ -31,28 +30,26 @@
             ]
         }`
     
-## api/post [POST]    
-    [POST]
+## api/post/create [POST]    
         Create new post.
-
+        
         `{
             "title": <post_title>,
-            "image": <post_image_path>,
+            "image": <post_image>,
             "content": <post_content>
         }`
 
         Errors:
             Access Denied Error: 
-
                 `{
                     "message": "Access denied",
                     "details": "User should be authorized for creating new post"
                 }`
 
-## api/post?p=<int:post_id> [GET, PUT, DELETE]
-    [GET]
+## api/post/get [GET]
         Return post by id.
 
+        id - primary key for searching;
         with_likes? - Include likes in response;
         with_comments? - Include comments in response;
 
@@ -73,21 +70,29 @@
                 ...
             ]
         }`
-    
-    [PUT]
-        Replace current post or create a new item.
+
+        Item not found error:
+            `{
+                "error": {
+                    "message" = "Item not found",
+                    "details" = "Collection has no contain item with this id",
+                    "item_id" = <id>
+                }
+            }`
+
+## api/post/update [PUT]
+    Update current post.
+
+        id - primary key for searching;
 
         `{
             "title": <post_title>,
             "image": <post_image_path>,
             "content": <post_content>
         }`
-    
-    [DELETE]
-        Delete current post
-    
-    Errors:
-        Access denied error [PUT, DELETE]: 
+
+        Errors:
+        Access denied error: 
             `{
                 "error": {
                     "message" = "Access denied",
@@ -95,17 +100,40 @@
                 }
             }`
 
-        Item not found error [GET, DELETE]:
+        Item not found error:
             `{
                 "error": {
                     "message" = "Item not found",
+                    "details" = "Collection has no contain item with this id",
                     "item_id" = <id>
                 }
             }`
 
-## /api/comments [GET]
-    [GET]
-        Return all comments.
+## api/post/delete [DELETE]
+    Delete post by id.
+
+    id - primary key for searching;
+
+    Errors:
+        Access denied error: 
+            `{
+                "error": {
+                    "message" = "Access denied",
+                    "details" = "User should be author or administrator." 
+                }
+            }`
+
+        Item not found error:
+            `{
+                "error": {
+                    "message" = "Item not found",
+                    "details" = "Collection has no contain item with this id",
+                    "item_id" = <id>
+                }
+            }`
+
+## /api/comment/getAll [GET]
+    Return all comments.
 
         with_likes? - Include likes in response;
 
@@ -115,6 +143,8 @@
                     "id": <commnet_id>,
                     "author": <comment_author>,
                     "content": <comment_content>,
+                    "createdTimestamp": <comment_datetime>,
+                    "edited": <comment_bool>,
                     "likes_count": <likes_count>,
                     "likes": [
                         ...
@@ -123,6 +153,103 @@
                 ...
             ]
         }`
+
+## /api/comment/create [POST]
+    Create new commnet to post.
+
+        id - Post primary key.
+
+        `{
+            "author": <comment_author>,
+            "content": <comment_content>
+        }`
+
+## /api/comment/update [PUT]
+    Update current comment
+
+        id - Primary key for searching item.
+
+        `{
+            "author": <comment_author>,
+            "content": <comment_content>
+        }`
+
+        Errors:
+        Access denied error: 
+            `{
+                "error": {
+                    "message" = "Access denied",
+                    "details" = "User should be author or administrator." 
+                }
+            }`
+
+        Item not found error:
+            `{
+                "error": {
+                    "message" = "Item not found",
+                    "details" = "Collection has no contain item with this id",
+                    "item_id" = <id>
+                }
+            }`
+
+## /api/comment/delete [DELETE]
+    Delete current comment
+
+        id - Primary key for searching item.
+
+        Errors:
+        Access denied error: 
+            `{
+                "error": {
+                    "message" = "Access denied",
+                    "details" = "User should be author or administrator." 
+                }
+            }`
+
+        Item not found error:
+            `{
+                "error": {
+                    "message" = "Item not found",
+                    "details" = "Collection has no contain item with this id",
+                    "item_id" = <id>
+                }
+            }`
+
+## /api/comment/like [POST]
+    Increment like count to comment
+
+        id - Primary key for searching item.
+
+        `{
+            "owner": <like_owner>
+        }`
+
+        Error: 
+            Like was placed.
+                `{
+                    "message": "Wrong behavior.",
+                    "details": "User has like this comment.",
+                    "item_id": <id>
+                }`
+
+## /api/comment/dislike [DELETE]
+    Decrement like count to comment
+
+        id - Primary key for searching item.
+
+        Error: 
+            Like wasn`t placed.
+                `{
+                    "message": "Wrong behavior.",
+                    "details": "User has no likes on this comment.",
+                    "item_id": <id>
+                }`
+
+
+
+
+
+
 
 ## /api/comments?p=<int:post_id> [GET, DELETE]
     [GET]
@@ -195,5 +322,3 @@
                     "message": "Wrong behavior.",
                     "details": "User has no likes."
                 }`
-
-        
