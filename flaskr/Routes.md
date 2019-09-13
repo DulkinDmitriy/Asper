@@ -1,38 +1,47 @@
 # Api routes
 
-## api/post/getAll [GET]
+##  /api/getAllPosts [GET]
         Return all posts.
+
+        Request: 
+            "with_likes": ...,
+            "with_comments": ...,
+            "count": ... 
+            
 
         with_likes? - Include likes in response;
         with_comments? - Include comments in response;
         count - count of posts;
 
-        `{
-            "posts": [
-                {
-                    "id": <post_id>,
-                    "title": <post_title>,
-                    "image": <post_image_path>,
-                    "content": <post_content>,
-                    "comments_count": <comments_count>,
-                    "likes_count": <likes_count>,
+        Response:
+            `{
+                "posts": [
+                    {
+                        "id": <post_id>,
+                        "title": <post_title>,
+                        "image": <post_image_path>,
+                        "content": <post_con    tent>,
+                        "created_datetime": <comment_datetime>,
+                        "comments_count": <comments_count>,
+                        "likes_count": <likes_count>,
 
+                        "comments": [
+                            ...
+                        ],
 
-                    "comments": [
-                        ...
-                    ],
-
-                    "likes": [
-                        ...
-                    ]
-                },
-                ...
-            ]
-        }`
+                        "likes": [
+                            ...
+                        ]
+                    },
+                    ...
+                ]
+            }`
     
-## api/post/create [POST]    
+## api/createPost [POST]    
         Create new post.
         
+        Request:
+
         `{
             "title": <post_title>,
             "image": <post_image>,
@@ -46,10 +55,11 @@
                     "details": "User should be authorized for creating new post"
                 }`
 
-## api/post/get [GET]
+
+## api/getPost [GET]
         Return post by id.
 
-        id - primary key for searching;
+
         with_likes? - Include likes in response;
         with_comments? - Include comments in response;
 
@@ -58,6 +68,7 @@
             "title": <post_title>,
             "image": <post_image_path>,
             "content": <post_content>,
+            "created_datetime": <comment_datetime>,
             "comments_count": <comments_count>,
             "likes_count": <likes_count>,
 
@@ -80,10 +91,8 @@
                 }
             }`
 
-## api/post/update [PUT]
+## api/updatePost [PUT]
     Update current post.
-
-        id - primary key for searching;
 
         `{
             "title": <post_title>,
@@ -109,10 +118,12 @@
                 }
             }`
 
-## api/post/delete [DELETE]
+## api/deletePost [DELETE]
     Delete post by id.
 
-    id - primary key for searching;
+        `{
+            "post_id": <id>
+        }`
 
     Errors:
         Access denied error: 
@@ -132,10 +143,14 @@
                 }
             }`
 
-## /api/comment/getAll [GET]
+## /api/getAllComments [GET]
     Return all comments.
 
         with_likes? - Include likes in response;
+
+        `{
+            with_likes: ...
+        }`
 
         `{
             "comments": [
@@ -143,7 +158,7 @@
                     "id": <commnet_id>,
                     "author": <comment_author>,
                     "content": <comment_content>,
-                    "createdTimestamp": <comment_datetime>,
+                    "created_datetime": <comment_datetime>,
                     "edited": <comment_bool>,
                     "likes_count": <likes_count>,
                     "likes": [
@@ -154,22 +169,20 @@
             ]
         }`
 
-## /api/comment/create [POST]
+## /api/createComment [POST]
     Create new commnet to post.
 
-        id - Post primary key.
-
         `{
+            "post_id": ...
             "author": <comment_author>,
             "content": <comment_content>
         }`
 
-## /api/comment/update [PUT]
+## /api/updateComment [PUT]
     Update current comment
 
-        id - Primary key for searching item.
-
         `{
+            "comment_id": ...
             "author": <comment_author>,
             "content": <comment_content>
         }`
@@ -192,10 +205,12 @@
                 }
             }`
 
-## /api/comment/delete [DELETE]
+## /api/deleteComment [DELETE]
     Delete current comment
 
-        id - Primary key for searching item.
+        '{
+            "comment_id": ...
+        }'
 
         Errors:
         Access denied error: 
@@ -215,12 +230,42 @@
                 }
             }`
 
-## /api/comment/like [POST]
-    Increment like count to comment
-
-        id - Primary key for searching item.
+## /api/putLikeToPost [POST]
+    Increment like count to post
 
         `{
+            "comment_id": <comment_id>,
+            "owner": <like_owner>
+        }`
+
+    Error: 
+        Like was placed.
+            `{
+                "message": "Wrong behavior.",
+                "details": "User has like this post.",
+                "item_id": <id>
+            }`
+
+## /api/deleteLikeFromPost [DELETE]
+    Decrement like count to post
+
+        `{
+            "comment_id": ...
+        }`
+
+        Error: 
+            Like wasn`t placed.
+                `{
+                    "message": "Wrong behavior.",
+                    "details": "User has no likes on this post.",
+                    "item_id": <id>
+                }`
+
+## /api/putLikeToComment [POST]
+    Increment like count to comment
+
+        `{
+            "comment_id": <comment_id>,
             "owner": <like_owner>
         }`
 
@@ -232,10 +277,12 @@
                     "item_id": <id>
                 }`
 
-## /api/comment/dislike [DELETE]
+## /api/deleteLikeFromComment [DELETE]
     Decrement like count to comment
 
-        id - Primary key for searching item.
+        `{
+            "comment_id": ...
+        }`
 
         Error: 
             Like wasn`t placed.
@@ -243,82 +290,4 @@
                     "message": "Wrong behavior.",
                     "details": "User has no likes on this comment.",
                     "item_id": <id>
-                }`
-
-
-
-
-
-
-
-## /api/comments?p=<int:post_id> [GET, DELETE]
-    [GET]
-        Return all comments to post.
-        
-        - with_likes? - Include likes in response;
-
-        `{
-            "post_id": <post_id>
-            "comments": [
-                {
-                    "id": <commnet_id>,
-                    "author": <comment_author>,
-                    "content": <comment_content>,
-                    "likes_count": <likes_count>,
-                    "likes": [
-                        ...
-                    ]
-                },
-                ...
-            ]
-        }`
-
-    [DELETE]
-        Delete all comments from post.
-
-        `{
-            "post_id": <post_id>
-        }`
-
-    Errors:
-        Item not found error:
-            
-            `{
-                "message": "Item not found",
-                "details": "Post not found",
-                "item_id": <item_id>
-            }`
-
-## /api/comment?p=<int:post_id> [POST, PUT, DELETE]
-    [POST]
-        Create comment to post.
-        
-        `{
-            "author": <comment_author>
-            "content": <comment_content>,
-        }`
-
-    [PUT]
-        Update comment to post.
-
-        `{
-            "author": <comment_autor>,
-            "content": <comment_content>
-        }`
-
-    [DELETE]
-        Delete comment from post.
-        
-## /api/posts/likes?p=<int:post_id> [POST, DELETE]
-    [POST]
-        Create like to post.
-
-    [DELETE]
-        Delete like from post.
-
-        Error: 
-            Like wasn`t placed.
-                `{
-                    "message": "Wrong behavior.",
-                    "details": "User has no likes."
                 }`
