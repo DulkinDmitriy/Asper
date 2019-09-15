@@ -3,7 +3,6 @@ import json
 from flaskr.post import Post, PostWithLikes, PostWithComments
 from flaskr.comment import Comment
 from flaskr.pyson import convert_to_json
-from flaskr.like import Like
 from pymongo import *
 from flask import *
 
@@ -111,7 +110,7 @@ def create_app(test_config=None):
     def create_comment():
         json = request.get_json(True)
         c = Comment(comments, json)
-        c.create(posts);   
+        c.create(posts)
 
         return jsonify(c.read())
 
