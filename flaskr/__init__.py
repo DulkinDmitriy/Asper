@@ -1,7 +1,9 @@
 import os
 import json
 from flaskr.post import Post, PostWithLikes, PostWithComments
+from flaskr.comment import Comment
 from flaskr.pyson import convert_to_json
+from flaskr.like import Like
 from pymongo import *
 from flask import *
 
@@ -30,7 +32,7 @@ def create_app(test_config=None):
         pass
 
     @app.route('/api/getAllPosts', methods=['GET'])
-    def getAllPosts():
+    def get_all_posts():
         with_likes = request.args.get("with_likes")
         with_comments = request.args.get("with_comments")
         str_counts = request.args.get("counts")
@@ -52,7 +54,7 @@ def create_app(test_config=None):
         return jsonify({"response": response})
 
     @app.route('/api/getPost', methods=['GET'])
-    def getPost():
+    def get_post():
         oid = request.args.get("id")
         with_likes = request.args.get("with_likes")
         with_comments = request.args.get("with_comments")
@@ -66,7 +68,7 @@ def create_app(test_config=None):
         return jsonify(p.read())
 
     @app.route('/api/createPost', methods=['POST'])
-    def createPost():
+    def create_post():
         json = request.get_json(True)
 
         p = Post(posts, json)
@@ -75,20 +77,65 @@ def create_app(test_config=None):
         return jsonify(p.read())
 
     @app.route('/api/updatePost', methods=['PUT'])
-    def updatePost():
+    def update_post():
         json = request.get_json(True)
+        oid = json["_id"]
         p = Post(posts, json)
 
-        p.update()
+        result = p.update()
+
+        if result.modified_count == 0:
+            return jsonify({
+                "error": "Item not found",
+                "details": "Collection has no contain item with this id",
+                "_id": oid})
 
         return jsonify(p.read())
 
     @app.route('/api/deletePost', methods=['DELETE'])
-    def deletePost():
+    def delete_post():
         oid = request.args.get("id")
         p = Post(posts, {"_id": oid})
 
         result = p.delete()
+
+        if result.deleted_count == 0:
+            return jsonify({
+                "error": "Item not found",
+                "details": "Collection has no contain item with this id",
+                "_id": oid})
+
+        return jsonify({"message": "Item was deleted", "_id": oid})
+
+    @app.route('/api/createComment', methods = ['POST'])
+    def create_comment():
+        json = request.get_json(True)
+        c = Comment(comments, json)
+        c.create(posts);   
+
+        return jsonify(c.read())
+
+    @app.route('/api/updateComment', methods = ['PUT'])
+    def update_comment():
+        json = request.get_json(True)
+        oid = json["_id"]
+        c = Comment(comments, json)
+
+        result = c.update()
+
+        if result.modified_count == 0:
+            return jsonify({
+                "error": "Item not found",
+                "details": "Collection has no contain item with this id",
+                "_id": oid})
+        
+        return jsonify(c.read())
+
+    @app.route('/api/deleteComment', methods = ['DELETE'])
+    def delete_comment():
+        oid = request.args.get("id")
+        c = Comment(comments, {"_id": oid})
+        result = c.delete()
 
         if result.deleted_count == 0:
             return jsonify({

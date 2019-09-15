@@ -1,8 +1,7 @@
 from pymongo.collection import Collection
 from bson.objectid import ObjectId
 from datetime import datetime
-from flaskr.pyson import convert_to_json
-
+from flaskr.pyson import *
 
 class Post:
 
@@ -11,11 +10,10 @@ class Post:
         self.json = json
 
     def create(self):
-        required_fields = ["title", "content"]
-        validate_result = self.validate(self.json, required_fields)
+        validate_result = validate_fields(self.json, ["title", "content"])
 
-        if not validate_result["result"]:
-            return self.bad_request("Wrong json template", details=f"Json request has no '{validate_result['field']}' property.")
+        if not validate_result.result:
+            return bad_request("Wrong json template", details=f"Json request has no '{validate_result.field}' property.")
 
         self.json["created_datetime"] = datetime.now()
         self.json["comments_count"] = 0
@@ -24,20 +22,18 @@ class Post:
         self.collection.insert_one(self.json)
 
     def update(self):
-        required_fields = ["_id", "title", "content"]
-        validate_result = self.validate(self.json, required_fields)
+        validate_result = validate_fields(self.json, ["_id", "title", "content"])
 
-        if not validate_result["result"]:
-            return self.bad_request("Wrong json template", details=f"Json request has no '{validate_result['field']}' property.")
+        if not validate_result.result:
+            return bad_request("Wrong json template", details=f"Json request has no '{validate_result.field}' property.")
 
-        self.collection.update_one({"_id": ObjectId(self.json.pop("_id"))}, {"$set": self.json})
+        return self.collection.update_one({"_id": ObjectId(self.json.pop("_id"))}, {"$set": self.json})
 
     def delete(self):
-        required_fields = ["_id"]
-        validate_result = self.validate(self.json, required_fields)
+        validate_result = validate_fields(self.json, ["_id"])
 
-        if not validate_result["result"]:
-            return self.bad_request("Wrong json template", details=f"Json request has no '{validate_result['field']}' property.")
+        if not validate_result.result:
+            return bad_request("Wrong json template", details=f"Json request has no '{validate_result.field}' property.")
 
         return self.collection.delete_one({"_id": ObjectId(self.json["_id"])})
 
@@ -51,23 +47,6 @@ class Post:
     def get_id(self):
         if self.json != {}:
             return self.read()["_id"]["$oid"]
-
-    def validate(self, json, fields):
-        for field in fields:
-            if field not in json:
-                return {"result": False, "field": field}
-        return {"result": True, "field": ""}
-
-    def bad_request(self, error, **kwargs):
-        b_request = {
-            "error": error
-        }
-
-        for key, value in kwargs.items():
-            b_request[key] = value
-
-        return b_request
-
 
 class PostWithLikes:
 

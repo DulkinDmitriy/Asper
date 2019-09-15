@@ -234,7 +234,7 @@
     Increment like count to post
 
         `{
-            "comment_id": <comment_id>,
+            "post_id": <comment_id>,
             "owner": <like_owner>
         }`
 
@@ -250,7 +250,7 @@
     Decrement like count to post
 
         `{
-            "comment_id": ...
+            "post_id": ...
         }`
 
         Error: 
