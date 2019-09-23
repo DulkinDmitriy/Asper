@@ -16,9 +16,6 @@ def create_app(test_config=DevelopmentConfig):
 
     @app.route('/api/posts', methods=['GET'])
     def all_posts():
-        w_likes = request.args.get('with_likes')
-        w_comments = request.args.get('with_comments')
-        count = request.args.get('count')
         post_request = req.PostListRequest.from_dict(
             {
                 "value": {
@@ -35,8 +32,6 @@ def create_app(test_config=DevelopmentConfig):
 
     @app.route('/api/post', methods=['GET'])
     def get_post():
-        oid = request.args.get('oid')
-
         post_request = req.PostSingleRequest.from_dict({
             'oid': request.args.get('oid', default="", type=str),
             'value': {
